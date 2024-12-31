@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>Exercise</title>
+    <title>Drag and Drop Test</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400&display=swap');
         body {
@@ -72,9 +72,11 @@
         .buttons-container {
             display: flex;
             justify-content: center;
+            align-items: center;
             gap: 10px;
             margin: 0 auto;
-            max-width: 400px;
+            max-width: 600px;
+            height: 45px; /* Fixed height to prevent layout shift */
         }
         .btn {
             padding: 10px 25px;
@@ -84,14 +86,18 @@
             border-radius: 5px;
             transition: all 0.3s ease;
             opacity: 1;
+            flex-shrink: 0; /* Prevent button shrinking */
+            width: 120px; /* Fixed width for consistency */
         }
         #submit-btn {
             background: #28a745;
             color: #ffffff;
+            transform: translateX(0);
         }
         #reset-btn {
             background: #dc3545;
             color: #ffffff;
+            transform: translateX(0);
         }
         #show-answers-btn {
             background: #007bff;
@@ -104,9 +110,15 @@
         }
         #show-answers-btn.visible {
             opacity: 1;
-            width: auto;
+            width: 120px; /* Match other buttons */
             padding: 10px 25px;
             margin: 0 5px;
+        }
+        .buttons-shifted #submit-btn {
+            transform: translateX(-65px);
+        }
+        .buttons-shifted #reset-btn {
+            transform: translateX(-65px);
         }
         .correct-answer {
             position: absolute;
@@ -126,6 +138,7 @@
             margin-top: 20px;
             font-size: 18px;
             font-weight: bold;
+            height: 27px; /* Fixed height to prevent layout shift */
         }
     </style>
 </head>
@@ -141,6 +154,7 @@
     <div id="results"></div>
 
     <script>
+        // [Previous category and words arrays remain the same]
         const categories = [
             { name: 'Physical appearance and character', dataCategory: 'appearance' },
             { name: 'Past life', dataCategory: 'past' },
@@ -164,6 +178,7 @@
 
         const columnsContainer = document.getElementById('columns-container');
         const wordsContainer = document.getElementById('words-container');
+        const buttonsContainer = document.querySelector('.buttons-container');
         const submitBtn = document.getElementById('submit-btn');
         const resetBtn = document.getElementById('reset-btn');
         const showAnswersBtn = document.getElementById('show-answers-btn');
@@ -171,7 +186,9 @@
 
         let isShowingAnswers = false;
         let userAnswersMap = new Map();
+        let isSubmitted = false;
 
+        // [Previous initialization code remains the same]
         categories.forEach(cat => {
             const colDiv = document.createElement('div');
             colDiv.classList.add('drop-column');
@@ -209,6 +226,7 @@
             wordsContainer.appendChild(wordDiv);
         });
 
+        // [Previous drag and drop event listeners remain the same]
         let draggedItem = null;
 
         const draggableWords = document.querySelectorAll('.draggable-word');
@@ -268,11 +286,15 @@
             // Reset results and buttons
             resultsDiv.textContent = '';
             showAnswersBtn.classList.remove('visible');
+            buttonsContainer.classList.remove('buttons-shifted');
             isShowingAnswers = false;
+            isSubmitted = false;
             userAnswersMap.clear();
         }
 
         function toggleCorrectAnswers() {
+            if (!isSubmitted) return;
+            
             isShowingAnswers = !isShowingAnswers;
             showAnswersBtn.textContent = isShowingAnswers ? 'Show Your Answers' : 'Show Correct Answers';
 
@@ -298,6 +320,8 @@
         }
 
         submitBtn.addEventListener('click', () => {
+            if (isSubmitted) return;
+            
             let correctCount = 0;
             const totalWords = draggableWords.length;
 
@@ -326,11 +350,15 @@
 
             resultsDiv.textContent = `You got ${correctCount} out of ${totalWords} correct!`;
             
-            // Animate submit button and show answers button
-            submitBtn.style.transform = 'translateX(-30px)';
+            // Add shifted class to container (moves both buttons)
+            buttonsContainer.classList.add('buttons-shifted');
+            
+            // Show answers button appears
             setTimeout(() => {
                 showAnswersBtn.classList.add('visible');
             }, 300);
+
+            isSubmitted = true;
         });
 
         resetBtn.addEventListener('click', resetGame);
