@@ -50,6 +50,7 @@
             margin: 5px;
             cursor: move;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            transition: opacity 0.3s ease;
         }
         .draggable-word.dragging {
             opacity: 0.5;
@@ -68,16 +69,57 @@
         .success-icon {
             color: green;
         }
-        #submit-btn {
-            display: block;
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
             margin: 0 auto;
+            max-width: 400px;
+        }
+        .btn {
             padding: 10px 25px;
             font-size: 16px;
             cursor: pointer;
-            background: #28a745;
-            color: #ffffff;
             border: none;
             border-radius: 5px;
+            transition: all 0.3s ease;
+            opacity: 1;
+        }
+        #submit-btn {
+            background: #28a745;
+            color: #ffffff;
+        }
+        #reset-btn {
+            background: #dc3545;
+            color: #ffffff;
+        }
+        #show-answers-btn {
+            background: #007bff;
+            color: #ffffff;
+            opacity: 0;
+            width: 0;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+        #show-answers-btn.visible {
+            opacity: 1;
+            width: auto;
+            padding: 10px 25px;
+            margin: 0 5px;
+        }
+        .correct-answer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            border-radius: 4px;
+            z-index: 1;
         }
         #results {
             text-align: center;
@@ -91,7 +133,11 @@
     <h1>Match the phrases to a category</h1>
     <div id="columns-container"></div>
     <div id="words-container"></div>
-    <button id="submit-btn">Submit</button>
+    <div class="buttons-container">
+        <button id="reset-btn" class="btn">Reset</button>
+        <button id="submit-btn" class="btn">Submit</button>
+        <button id="show-answers-btn" class="btn">Show Correct Answers</button>
+    </div>
     <div id="results"></div>
 
     <script>
@@ -119,7 +165,12 @@
         const columnsContainer = document.getElementById('columns-container');
         const wordsContainer = document.getElementById('words-container');
         const submitBtn = document.getElementById('submit-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const showAnswersBtn = document.getElementById('show-answers-btn');
         const resultsDiv = document.getElementById('results');
+
+        let isShowingAnswers = false;
+        let userAnswersMap = new Map();
 
         categories.forEach(cat => {
             const colDiv = document.createElement('div');
@@ -148,8 +199,13 @@
             successIcon.classList.add('success-icon');
             successIcon.textContent = '✓';
 
+            const correctAnswer = document.createElement('div');
+            correctAnswer.classList.add('correct-answer');
+            correctAnswer.textContent = word.label;
+
             wordDiv.appendChild(errorIcon);
             wordDiv.appendChild(successIcon);
+            wordDiv.appendChild(correctAnswer);
             wordsContainer.appendChild(wordDiv);
         });
 
@@ -199,6 +255,48 @@
             }
         }
 
+        function resetGame() {
+            // Move all words back to words container
+            draggableWords.forEach(word => {
+                wordsContainer.appendChild(word);
+                word.style.borderColor = '#ccc';
+                word.querySelector('.error-icon').style.display = 'none';
+                word.querySelector('.success-icon').style.display = 'none';
+                word.querySelector('.correct-answer').style.display = 'none';
+            });
+            
+            // Reset results and buttons
+            resultsDiv.textContent = '';
+            showAnswersBtn.classList.remove('visible');
+            isShowingAnswers = false;
+            userAnswersMap.clear();
+        }
+
+        function toggleCorrectAnswers() {
+            isShowingAnswers = !isShowingAnswers;
+            showAnswersBtn.textContent = isShowingAnswers ? 'Show Your Answers' : 'Show Correct Answers';
+
+            if (isShowingAnswers) {
+                // Store current positions and show correct answers
+                draggableWords.forEach(word => {
+                    const currentColumn = word.parentElement;
+                    if (currentColumn.classList.contains('drop-column')) {
+                        userAnswersMap.set(word, currentColumn);
+                    }
+                    
+                    // Move to correct column
+                    const correctCategory = word.getAttribute('data-category');
+                    const correctColumn = document.querySelector(`.drop-column[data-category="${correctCategory}"]`);
+                    correctColumn.appendChild(word);
+                });
+            } else {
+                // Restore user's answers
+                userAnswersMap.forEach((column, word) => {
+                    column.appendChild(word);
+                });
+            }
+        }
+
         submitBtn.addEventListener('click', () => {
             let correctCount = 0;
             const totalWords = draggableWords.length;
@@ -227,7 +325,16 @@
             });
 
             resultsDiv.textContent = `You got ${correctCount} out of ${totalWords} correct!`;
+            
+            // Animate submit button and show answers button
+            submitBtn.style.transform = 'translateX(-30px)';
+            setTimeout(() => {
+                showAnswersBtn.classList.add('visible');
+            }, 300);
         });
+
+        resetBtn.addEventListener('click', resetGame);
+        showAnswersBtn.addEventListener('click', toggleCorrectAnswers);
     </script>
 </body>
 </html>
