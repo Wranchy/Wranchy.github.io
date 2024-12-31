@@ -5,22 +5,30 @@
     <title>Drag and Drop Test</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400&display=swap');
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
         body {
             font-family: 'Poppins', sans-serif;
-            margin: 20px;
+            padding: 20px;
             background-color: #f8f8f8;
+            max-width: 1200px;
+            margin: 0 auto;
         }
         h1 {
-            font-size:20px;
+            font-size: 24px;
             text-align: center;
+            margin-bottom: 20px;
         }
         #columns-container {
-            display: flex;
-            justify-content: space-around;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
             margin: 20px 0;
         }
         .drop-column {
-            width: 30%;
             min-height: 200px;
             border: 2px dashed #ccc;
             border-radius: 8px;
@@ -28,9 +36,10 @@
             transition: background-color 0.3s ease;
         }
         .drop-column h2 {
-            font-size:13px;
+            font-size: 14px;
             text-align: center;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
+            word-wrap: break-word;
         }
         .drop-column:hover {
             background-color: #f0f0f0;
@@ -39,22 +48,29 @@
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
-            margin-bottom: 20px;
+            gap: 10px;
+            margin: 20px 0;
+            padding: 0 10px;
         }
         .draggable-word {
             position: relative;
             background-color: #fff;
             border: 1px solid #ccc;
             border-radius: 4px;
-            padding: 10px 15px;
-            margin: 5px;
+            padding: 8px 12px;
+            margin: 0;
             cursor: move;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-            transition: opacity 0.3s ease;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            max-width: 100%;
+            word-wrap: break-word;
+            touch-action: none;
         }
         .draggable-word.dragging {
             opacity: 0.5;
             border: 2px dashed #666;
+            transform: scale(1.02);
         }
         .error-icon, .success-icon {
             position: absolute;
@@ -62,6 +78,7 @@
             right: 3px;
             font-weight: bold;
             display: none;
+            font-size: 12px;
         }
         .error-icon {
             color: red;
@@ -73,72 +90,102 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 10px;
-            margin: 0 auto;
-            max-width: 600px;
-            height: 45px; /* Fixed height to prevent layout shift */
+            gap: 15px;
+            margin: 20px auto;
+            height: 45px;
+            max-width: 500px;
+            position: relative;
         }
         .btn {
-            padding: 10px 25px;
-            font-size: 16px;
+            padding: 10px 20px;
+            font-size: 14px;
             cursor: pointer;
             border: none;
             border-radius: 5px;
             transition: all 0.3s ease;
-            opacity: 1;
-            flex-shrink: 0; /* Prevent button shrinking */
-            width: 120px; /* Fixed width for consistency */
+            width: 140px;
+            white-space: nowrap;
         }
         #submit-btn {
             background: #28a745;
             color: #ffffff;
-            transform: translateX(0);
         }
         #reset-btn {
             background: #dc3545;
             color: #ffffff;
-            transform: translateX(0);
         }
         #show-answers-btn {
             background: #007bff;
             color: #ffffff;
+            position: absolute;
+            right: -15px;
             opacity: 0;
             width: 0;
             padding: 0;
-            margin: 0;
-            overflow: hidden;
+            pointer-events: none;
         }
         #show-answers-btn.visible {
             opacity: 1;
-            width: 120px; /* Match other buttons */
-            padding: 10px 25px;
-            margin: 0 5px;
+            width: 140px;
+            padding: 10px 20px;
+            pointer-events: auto;
         }
+        .buttons-shifted #reset-btn,
         .buttons-shifted #submit-btn {
-            transform: translateX(-65px);
-        }
-        .buttons-shifted #reset-btn {
-            transform: translateX(-65px);
-        }
-        .correct-answer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #fff;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            border-radius: 4px;
-            z-index: 1;
+            transform: translateX(-77.5px);
         }
         #results {
             text-align: center;
-            margin-top: 20px;
-            font-size: 18px;
+            margin: 20px 0;
+            min-height: 27px;
+            font-size: 16px;
             font-weight: bold;
-            height: 27px; /* Fixed height to prevent layout shift */
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 20px;
+            }
+            .drop-column {
+                min-height: 150px;
+            }
+            .draggable-word {
+                font-size: 13px;
+                padding: 6px 10px;
+            }
+            .btn {
+                font-size: 13px;
+                padding: 8px 15px;
+                width: 120px;
+            }
+            #show-answers-btn.visible {
+                width: 120px;
+            }
+            .buttons-shifted #reset-btn,
+            .buttons-shifted #submit-btn {
+                transform: translateX(-67.5px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .buttons-container {
+                gap: 10px;
+            }
+            .btn {
+                width: 110px;
+                font-size: 12px;
+                padding: 8px 12px;
+            }
+            #show-answers-btn.visible {
+                width: 110px;
+            }
+            .buttons-shifted #reset-btn,
+            .buttons-shifted #submit-btn {
+                transform: translateX(-60px);
+            }
         }
     </style>
 </head>
@@ -292,27 +339,24 @@
             userAnswersMap.clear();
         }
 
-        function toggleCorrectAnswers() {
+                function toggleCorrectAnswers() {
             if (!isSubmitted) return;
             
             isShowingAnswers = !isShowingAnswers;
-            showAnswersBtn.textContent = isShowingAnswers ? 'Show Your Answers' : 'Show Correct Answers';
+            showAnswersBtn.textContent = isShowingAnswers ? 'Show Yours' : 'Show Correct';
 
             if (isShowingAnswers) {
-                // Store current positions and show correct answers
                 draggableWords.forEach(word => {
                     const currentColumn = word.parentElement;
                     if (currentColumn.classList.contains('drop-column')) {
                         userAnswersMap.set(word, currentColumn);
                     }
                     
-                    // Move to correct column
                     const correctCategory = word.getAttribute('data-category');
                     const correctColumn = document.querySelector(`.drop-column[data-category="${correctCategory}"]`);
                     correctColumn.appendChild(word);
                 });
             } else {
-                // Restore user's answers
                 userAnswersMap.forEach((column, word) => {
                     column.appendChild(word);
                 });
@@ -324,8 +368,6 @@
             
             let correctCount = 0;
             const totalWords = draggableWords.length;
-
-            resultsDiv.textContent = '';
 
             dropColumns.forEach(column => {
                 const correctCategory = column.getAttribute('data-category');
@@ -350,14 +392,10 @@
 
             resultsDiv.textContent = `You got ${correctCount} out of ${totalWords} correct!`;
             
-            // Add shifted class to container (moves both buttons)
+            // Add shifted class immediately with the show answers button
             buttonsContainer.classList.add('buttons-shifted');
+            showAnswersBtn.classList.add('visible');
             
-            // Show answers button appears
-            setTimeout(() => {
-                showAnswersBtn.classList.add('visible');
-            }, 300);
-
             isSubmitted = true;
         });
 
