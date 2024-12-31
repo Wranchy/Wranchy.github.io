@@ -1,545 +1,521 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Exercise</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400&display=swap');
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            font-family: 'Poppins', sans-serif;
-            padding: 20px;
-            background-color: #f8f8f8;
-            max-width: 1200px;
-            margin: 0 auto;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        h1 {
-            font-size: 24px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        #columns-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin: 20px 0;
-        }
-        .drop-column {
-            min-height: 200px;
-            border: 2px dashed #ccc;
-            border-radius: 8px;
-            padding: 10px;
-            transition: background-color 0.3s ease;
-            background-color: #ffffff;
-        }
-        .drop-column h2 {
-            font-size: 14px;
-            text-align: center;
-            margin-bottom: 10px;
-            word-wrap: break-word;
-        }
-        .drop-column.dragover {
-            background-color: #f0f0f0;
-            border-color: #666;
-        }
-        #words-container {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 20px 0;
-            padding: 10px;
-            min-height: 100px;
-            border: 2px dashed #eee;
-            border-radius: 8px;
-            background-color: #ffffff;
-        }
-        .draggable-word {
-            position: relative;
-            background-color: #fff;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            padding: 8px 28px 8px 12px;
-            margin: 0;
-            cursor: move;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            font-size: 14px;
-            max-width: 100%;
-            word-wrap: break-word;
-            touch-action: none;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-        .draggable-word.dragging {
-            opacity: 0.5;
-            border: 2px dashed #666;
-            transform: scale(1.02);
-        }
-        .error-icon, .success-icon {
-            position: absolute;
-            top: 50%;
-            right: 8px;
-            transform: translateY(-50%);
-            font-weight: bold;
-            display: none;
-            font-size: 12px;
-        }
-        .error-icon {
-            color: #dc3545;
-        }
-        .success-icon {
-            color: #28a745;
-        }
-        .buttons-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            margin: 20px auto;
-            padding: 0 20px;
-            max-width: 500px;
-            height: 45px;
-            position: relative;
-        }
-        .btn {
-            padding: 10px 20px;
-            font-size: 14px;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-            width: 140px;
-            white-space: nowrap;
-        }
-        #submit-btn {
-            background: #28a745;
-            color: #ffffff;
-        }
-        #reset-btn {
-            background: #dc3545;
-            color: #ffffff;
-        }
-        #show-answers-btn {
-            background: #007bff;
-            color: #ffffff;
-            position: absolute;
-            right: 20px;
-            opacity: 0;
-            width: 0;
-            padding: 0;
-            pointer-events: none;
-            transition: all 0.3s ease;
-        }
-        #show-answers-btn.visible {
-            opacity: 1;
-            width: 140px;
-            padding: 10px 20px;
-            pointer-events: auto;
-        }
-        .buttons-shifted #reset-btn,
-        .buttons-shifted #submit-btn {
-            transform: translateX(-77.5px);
-            transition: transform 0.3s ease;
-        }
-        #results {
-            text-align: center;
-            margin: 20px 0;
-            min-height: 27px;
-            font-size: 16px;
-            font-weight: bold;
-            color: #28a745;
-        }
-
-        @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-            .buttons-container {
-                padding: 0 10px;
-            }
-            .btn {
-                width: 120px;
-                font-size: 13px;
-                padding: 8px 15px;
-            }
-            #show-answers-btn.visible {
-                width: 120px;
-                right: 10px;
-            }
-            .buttons-shifted #reset-btn,
-            .buttons-shifted #submit-btn {
-                transform: translateX(-67.5px);
-            }
-        }
-
-        @media (max-width: 480px) {
-            .buttons-container {
-                gap: 10px;
-                padding: 0 5px;
-            }
-            .btn {
-                width: 100px;
-                font-size: 12px;
-                padding: 8px 12px;
-            }
-            #show-answers-btn.visible {
-                width: 100px;
-                right: 5px;
-            }
-            .buttons-shifted #reset-btn,
-            .buttons-shifted #submit-btn {
-                transform: translateX(-55px);
-            }
-            .draggable-word {
-                font-size: 13px;
-                padding: 6px 24px 6px 8px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <!-- Ensures proper mobile rendering -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Exercise</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400&display=swap');
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      padding: 20px;
+      background-color: #f8f8f8;
+      max-width: 1200px;
+      margin: 0 auto;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    h1 {
+      font-size: 24px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    /* Container for categories (columns) */
+    #columns-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin: 20px 0;
+    }
+    /* Each drop zone */
+    .drop-column {
+      min-height: 200px;
+      border: 2px dashed #ccc;
+      border-radius: 8px;
+      padding: 10px;
+      transition: background-color 0.3s ease;
+      background-color: #ffffff;
+    }
+    .drop-column h2 {
+      font-size: 14px;
+      text-align: center;
+      margin-bottom: 10px;
+      word-wrap: break-word;
+    }
+    .drop-column.dragover {
+      background-color: #f0f0f0;
+      border-color: #666;
+    }
+    /* Container for draggable words */
+    #words-container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 20px 0;
+      padding: 10px;
+      min-height: 100px;
+      border: 2px dashed #eee;
+      border-radius: 8px;
+      background-color: #ffffff;
+    }
+    /* Draggable word styles */
+    .draggable-word {
+      position: relative;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 8px 28px 8px 12px;
+      margin: 0;
+      cursor: move;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      font-size: 14px;
+      max-width: 100%;
+      word-wrap: break-word;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .draggable-word.dragging {
+      opacity: 0.5;
+      border: 2px dashed #666;
+      transform: scale(1.02);
+    }
+    /* Icons for correctness */
+    .error-icon, .success-icon {
+      position: absolute;
+      top: 50%;
+      right: 8px;
+      transform: translateY(-50%);
+      font-weight: bold;
+      display: none;
+      font-size: 12px;
+    }
+    .error-icon {
+      color: #dc3545;
+    }
+    .success-icon {
+      color: #28a745;
+    }
+    /* Buttons styling */
+    .buttons-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      margin: 20px auto;
+      padding: 0 20px;
+      max-width: 500px;
+    }
+    .btn {
+      padding: 10px 20px;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+      width: 140px;
+      white-space: nowrap;
+    }
+    #submit-btn {
+      background: #28a745;
+      color: #ffffff;
+    }
+    #reset-btn {
+      background: #dc3545;
+      color: #ffffff;
+    }
+    /* "Show Answers" is hidden by default, then toggled visible after submission */
+    #show-answers-btn {
+      background: #007bff;
+      color: #ffffff;
+      opacity: 0;
+      width: 0;
+      padding: 0;
+      pointer-events: none;
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+    #show-answers-btn.visible {
+      opacity: 1;
+      width: 200px;
+      padding: 10px 20px;
+      pointer-events: auto;
+    }
+    /* Results text */
+    #results {
+      text-align: center;
+      margin: 20px 0;
+      min-height: 27px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #28a745;
+    }
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+      .btn {
+        width: 120px;
+        font-size: 13px;
+        padding: 8px 15px;
+      }
+      #show-answers-btn.visible {
+        width: 120px;
+      }
+    }
+    @media (max-width: 480px) {
+      .buttons-container {
+        gap: 10px;
+        padding: 0 5px;
+      }
+      .btn {
+        width: 100px;
+        font-size: 12px;
+        padding: 8px 12px;
+      }
+      #show-answers-btn.visible {
+        width: 100px;
+      }
+      .draggable-word {
+        font-size: 13px;
+        padding: 6px 24px 6px 8px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <h1>Match the phrases to a category</h1>
-    <div id="columns-container"></div>
-    <div id="words-container"></div>
-    <div class="buttons-container">
-        <button id="reset-btn" class="btn">Reset</button>
-        <button id="submit-btn" class="btn">Submit</button>
-        <button id="show-answers-btn" class="btn">Show Correct Answers</button>
-    </div>
-    <div id="results"></div>
+  <h1>Match the phrases to a category</h1>
+  
+  <div id="columns-container"></div>
+  <div id="words-container"></div>
+  
+  <div class="buttons-container">
+    <button id="reset-btn" class="btn">Reset</button>
+    <button id="submit-btn" class="btn">Submit</button>
+    <button id="show-answers-btn" class="btn">Show Correct Answers</button>
+  </div>
+  
+  <div id="results"></div>
+  
+  <script>
+    const categories = [
+      { name: 'Physical appearance and character', dataCategory: 'appearance' },
+      { name: 'Past life', dataCategory: 'past' },
+      { name: 'Current life', dataCategory: 'current' },
+    ];
 
-    <script>
-        const categories = [
-            { name: 'Physical appearance and character', dataCategory: 'appearance' },
-            { name: 'Past life', dataCategory: 'past' },
-            { name: 'Current life', dataCategory: 'current' },
-        ];
+    const words = [
+      { label: 'quite short', category: 'appearance' },
+      { label: 'seems to be very happy', category: 'current' },
+      { label: 'dark green eyes', category: 'appearance' },
+      { label: 'quite pretty', category: 'appearance' },
+      { label: 'lives in the countryside in a particularly beautiful house', category: 'current' },
+      { label: 'extremely ambitious', category: 'appearance' },
+      { label: 'works mainly with farm animals', category: 'current' },
+      { label: 'trained to be a vet', category: 'past' },
+      { label: 'went to Edinburgh University', category: 'past' },
+      { label: 'travelled around Australia and New Zealand', category: 'past' },
+      { label: 'very intelligent', category: 'appearance' },
+      { label: 'really friendly', category: 'appearance' },
+    ];
 
-        const words = [
-            { label: 'quite short', category: 'appearance' },
-            { label: 'seems to be very happy', category: 'current' },
-            { label: 'dark green eyes', category: 'appearance' },
-            { label: 'quite pretty', category: 'appearance' },
-            { label: 'lives in the countryside in a particularly beautiful house', category: 'current' },
-            { label: 'extremely ambitious', category: 'appearance' },
-            { label: 'works mainly with farm animals', category: 'current' },
-            { label: 'trained to be a vet', category: 'past' },
-            { label: 'went to Edinburgh University', category: 'past' },
-            { label: 'travelled around Australia and New Zealand', category: 'past' },
-            { label: 'very intelligent', category: 'appearance' },
-            { label: 'really friendly', category: 'appearance' },
-        ];
+    const columnsContainer = document.getElementById('columns-container');
+    const wordsContainer = document.getElementById('words-container');
+    const submitBtn = document.getElementById('submit-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const showAnswersBtn = document.getElementById('show-answers-btn');
+    const resultsDiv = document.getElementById('results');
 
-        const columnsContainer = document.getElementById('columns-container');
-        const wordsContainer = document.getElementById('words-container');
-        const buttonsContainer = document.querySelector('.buttons-container');
-        const submitBtn = document.getElementById('submit-btn');
-        const resetBtn = document.getElementById('reset-btn');
-        const showAnswersBtn = document.getElementById('show-answers-btn');
-        const resultsDiv = document.getElementById('results');
+    let isShowingAnswers = false;
+    let userAnswersMap = new Map();
+    let isSubmitted = false;
+    let draggedItem = null;
 
-        let isShowingAnswers = false;
-        let userAnswersMap = new Map();
-        let isSubmitted = false;
+    // Create columns
+    categories.forEach(cat => {
+      const colDiv = document.createElement('div');
+      colDiv.classList.add('drop-column');
+      colDiv.setAttribute('data-category', cat.dataCategory);
 
-        // Initialize columns
-        categories.forEach(cat => {
-            const colDiv = document.createElement('div');
-            colDiv.classList.add('drop-column');
-            colDiv.setAttribute('data-category', cat.dataCategory);
+      const title = document.createElement('h2');
+      title.textContent = cat.name;
+      colDiv.appendChild(title);
 
-            const title = document.createElement('h2');
-            title.textContent = cat.name;
+      columnsContainer.appendChild(colDiv);
+    });
 
-            colDiv.appendChild(title);
-            columnsContainer.appendChild(colDiv);
+    // Create draggable words
+    words.forEach(word => {
+      const wordDiv = document.createElement('div');
+      wordDiv.classList.add('draggable-word');
+      wordDiv.setAttribute('draggable', 'true');
+      wordDiv.setAttribute('data-category', word.category);
+      wordDiv.textContent = word.label;
+
+      const errorIcon = document.createElement('span');
+      errorIcon.classList.add('error-icon');
+      errorIcon.textContent = '✘';
+      wordDiv.appendChild(errorIcon);
+
+      const successIcon = document.createElement('span');
+      successIcon.classList.add('success-icon');
+      successIcon.textContent = '✓';
+      wordDiv.appendChild(successIcon);
+
+      wordsContainer.appendChild(wordDiv);
+    });
+
+    // Initialize desktop drag-and-drop
+    function initializeDragAndDrop() {
+      const draggableWords = document.querySelectorAll('.draggable-word');
+      const dropColumns = document.querySelectorAll('.drop-column');
+
+      draggableWords.forEach(word => {
+        word.addEventListener('dragstart', function(e) {
+          if (isSubmitted) {
+            e.preventDefault();
+            return;
+          }
+          draggedItem = this;
+          this.classList.add('dragging');
         });
 
-        // Initialize words
-        words.forEach(word => {
-            const wordDiv = document.createElement('div');
-            wordDiv.classList.add('draggable-word');
-            wordDiv.setAttribute('draggable', 'true');
-            wordDiv.setAttribute('data-category', word.category);
-            wordDiv.textContent = word.label;
+        word.addEventListener('dragend', function() {
+          this.classList.remove('dragging');
+          dropColumns.forEach(col => col.classList.remove('dragover'));
+        });
+      });
 
-            const errorIcon = document.createElement('span');
-            errorIcon.classList.add('error-icon');
-            errorIcon.textContent = '✘';
-
-            const successIcon = document.createElement('span');
-            successIcon.classList.add('success-icon');
-            successIcon.textContent = '✓';
-
-            wordDiv.appendChild(errorIcon);
-            wordDiv.appendChild(successIcon);
-            wordsContainer.appendChild(wordDiv);
+      dropColumns.forEach(column => {
+        column.addEventListener('dragover', function(e) {
+          if (isSubmitted) return;
+          e.preventDefault();
+          this.classList.add('dragover');
         });
 
-        // Touch event handling for mobile devices
-        function initializeTouchEvents() {
-            const draggableWords = document.querySelectorAll('.draggable-word');
-            let touchStartY;
+        column.addEventListener('dragleave', function() {
+          this.classList.remove('dragover');
+        });
 
-            draggableWords.forEach(word => {
-                word.addEventListener('touchstart', function(e) {
-                    if (isSubmitted) return;
-                    touchStartY = e.touches[0].clientY;
-                    this.classList.add('dragging');
-                    e.preventDefault(); // Prevent scrolling while dragging
-                }, { passive: false });
+        column.addEventListener('drop', function(e) {
+          if (isSubmitted) return;
+          e.preventDefault();
+          this.classList.remove('dragover');
+          if (draggedItem) {
+            this.appendChild(draggedItem);
+          }
+        });
+      });
 
-                word.addEventListener('touchmove', function(e) {
-                    if (isSubmitted) return;
-                    const touch = e.touches[0];
-                    const touchY = touch.clientY;
-                    
-                    // Check if user is trying to scroll
-                    if (Math.abs(touchY - touchStartY) > 10) {
-                        e.preventDefault(); // Prevent scrolling only if dragging
-                    }
+      // Allow dropping back to words container
+      wordsContainer.addEventListener('dragover', function(e) {
+        if (isSubmitted) return;
+        e.preventDefault();
+      });
 
-                    this.style.position = 'absolute';
-                    this.style.left = touch.pageX - this.offsetWidth / 2 + 'px';
-                    this.style.top = touch.pageY - this.offsetHeight / 2 + 'px';
-
-                    // Find the drop target
-                    const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
-                    const column = dropTarget?.closest('.drop-column');
-                    
-                    // Remove dragover class from all columns
-                    document.querySelectorAll('.drop-column').forEach(col => {
-                        col.classList.remove('dragover');
-                    });
-
-                    // Add dragover class to current column
-                    if (column) {
-                        column.classList.add('dragover');
-                    }
-                }, { passive: false });
-
-                word.addEventListener('touchend', function(e) {
-                    if (isSubmitted) return;
-                    this.classList.remove('dragging');
-                    this.style.position = '';
-                    this.style.left = '';
-                    this.style.top = '';
-
-                    const touch = e.changedTouches[0];
-                    const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
-                    const column = dropTarget?.closest('.drop-column');
-
-                    if (column) {
-                        column.appendChild(this);
-                    } else if (this.parentElement !== wordsContainer) {
-                        wordsContainer.appendChild(this);
-                    }
-
-                    // Remove dragover class from all columns
-                    document.querySelectorAll('.drop-column').forEach(col => {
-                        col.classList.remove('dragover');
-                    });
-                });
-            });
+      wordsContainer.addEventListener('drop', function(e) {
+        if (isSubmitted) return;
+        e.preventDefault();
+        if (draggedItem) {
+          this.appendChild(draggedItem);
         }
+      });
+    }
 
-        // Desktop drag and drop
-        function initializeDragAndDrop() {
-            const draggableWords = document.querySelectorAll('.draggable-word');
-            const dropColumns = document.querySelectorAll('.drop-column');
-            let draggedItem = null;
+    // Initialize mobile touch events
+    function initializeTouchEvents() {
+      const draggableWords = document.querySelectorAll('.draggable-word');
+      let touchStartY = 0;
 
-            draggableWords.forEach(word => {
-                word.addEventListener('dragstart', function(e) {
-                    if (isSubmitted) {
-                        e.preventDefault();
-                        return;
-                    }
-                    draggedItem = this;
-                    this.classList.add('dragging');
-                });
-
-                word.addEventListener('dragend', function() {
-                    if (isSubmitted) return;
-                    this.classList.remove('dragging');
-                    dropColumns.forEach(column => {
-                        column.classList.remove('dragover');
-                    });
-                });
-            });
-
-            dropColumns.forEach(column => {
-                column.addEventListener('dragover', function(e) {
-                    if (isSubmitted) return;
-                    e.preventDefault();
-                    this.classList.add('dragover');
-                });
-
-                column.addEventListener('dragleave', function() {
-                    if (isSubmitted) return;
-                    this.classList.remove('dragover');
-                });
-
-                column.addEventListener('drop', function(e) {
-                    if (isSubmitted) return;
-                    e.preventDefault();
-                    this.classList.remove('dragover');
-                    if (draggedItem) {
-                        this.appendChild(draggedItem);
-                    }
-                });
-            });
-
-            // Allow dropping back to words container
-            wordsContainer.addEventListener('dragover', function(e) {
-                if (isSubmitted) return;
-                e.preventDefault();
-            });
-
-            wordsContainer.addEventListener('drop', function(e) {
-                if (isSubmitted) return;
-                e.preventDefault();
-                if (draggedItem) {
-                    this.appendChild(draggedItem);
-                }
-            });
-        }
-
-        function resetGame() {
-            // Move all words back to words container
-            document.querySelectorAll('.draggable-word').forEach(word => {
-                wordsContainer.appendChild(word);
-                word.style.borderColor = '#ccc';
-                word.querySelector('.error-icon').style.display = 'none';
-                word.querySelector('.success-icon').style.display = 'none';
-            });
-            
-            // Reset results and buttons
-            resultsDiv.textContent = '';
-            showAnswersBtn.classList.remove('visible');
-            buttonsContainer.classList.remove('buttons-shifted');
-            isShowingAnswers = false;
-            isSubmitted = false;
-            userAnswersMap.clear();
-
-            // Re-enable dragging
-            document.querySelectorAll('.draggable-word').forEach(word => {
-                word.setAttribute('draggable', 'true');
-            });
-        }
-
-        function toggleCorrectAnswers() {
-            if (!isSubmitted) return;
-            
-            isShowingAnswers = !isShowingAnswers;
-            showAnswersBtn.textContent = isShowingAnswers ? 'Show Your Answers' : 'Show Correct Answers';
-
-            const draggableWords = document.querySelectorAll('.draggable-word');
-
-            if (isShowingAnswers) {
-                // Store current positions before showing correct answers
-                draggableWords.forEach(word => {
-                    const currentColumn = word.parentElement;
-                    if (currentColumn.classList.contains('drop-column')) {
-                        userAnswersMap.set(word, currentColumn);
-                    }
-                });
-
-                // Show correct answers
-                draggableWords.forEach(word => {
-                    const correctCategory = word.getAttribute('data-category');
-                    const correctColumn = document.querySelector(`.drop-column[data-category="${correctCategory}"]`);
-                    correctColumn.appendChild(word);
-                });
-            } else {
-                // Restore user's answers
-                draggableWords.forEach(word => {
-                    const userColumn = userAnswersMap.get(word);
-                    if (userColumn) {
-                        userColumn.appendChild(word);
-                    } else {
-                        wordsContainer.appendChild(word);
-                    }
-                });
-            }
-        }
-
-        function submitAnswers() {
-            if (isSubmitted) return;
-
-            let correctCount = 0;
-            const totalWords = document.querySelectorAll('.draggable-word').length;
-            const dropColumns = document.querySelectorAll('.drop-column');
-
-            // Check answers
-            dropColumns.forEach(column => {
-                const correctCategory = column.getAttribute('data-category');
-                const droppedWords = column.querySelectorAll('.draggable-word');
-
-                droppedWords.forEach(word => {
-                    const errorIcon = word.querySelector('.error-icon');
-                    const successIcon = word.querySelector('.success-icon');
-                    
-                    if (word.getAttribute('data-category') === correctCategory) {
-                        correctCount++;
-                        word.style.borderColor = '#28a745';
-                        errorIcon.style.display = 'none';
-                        successIcon.style.display = 'inline';
-                    } else {
-                        word.style.borderColor = '#dc3545';
-                        errorIcon.style.display = 'inline';
-                        successIcon.style.display = 'none';
-                    }
-                });
-            });
-
-            // Update results
-            const percentage = Math.round((correctCount / totalWords) * 100);
-            resultsDiv.textContent = `You got ${correctCount} out of ${totalWords} correct! (${percentage}%)`;
-            
-            // Show the "Show Correct Answers" button
-            buttonsContainer.classList.add('buttons-shifted');
-            showAnswersBtn.classList.add('visible');
-            
-            // Disable dragging after submission
-            document.querySelectorAll('.draggable-word').forEach(word => {
-                word.setAttribute('draggable', 'false');
-            });
-            
-            isSubmitted = true;
-        }
-
-        // Initialize drag/drop and touch events
-        initializeDragAndDrop();
-        initializeTouchEvents();
-
-        // Add event listeners to buttons
-        submitBtn.addEventListener('click', submitAnswers);
-        resetBtn.addEventListener('click', resetGame);
-        showAnswersBtn.addEventListener('click', toggleCorrectAnswers);
-
-        // Prevent zooming on mobile devices
-        document.addEventListener('touchmove', function(e) {
-            if (e.touches.length > 1) {
-                e.preventDefault();
-            }
+      draggableWords.forEach(word => {
+        word.addEventListener('touchstart', function(e) {
+          if (isSubmitted) return;
+          touchStartY = e.touches[0].clientY;
+          this.classList.add('dragging');
+          // Prevent page scrolling on touch
+          e.preventDefault();
         }, { passive: false });
 
-        // Prevent context menu on long press
-        document.addEventListener('contextmenu', function(e) {
-            if (e.target.classList.contains('draggable-word')) {
-                e.preventDefault();
-            }
+        word.addEventListener('touchmove', function(e) {
+          if (isSubmitted) return;
+          const touch = e.touches[0];
+          const touchY = touch.clientY;
+
+          // If movement is more than a small threshold, treat it as a drag
+          if (Math.abs(touchY - touchStartY) > 10) {
+            e.preventDefault();
+          }
+
+          this.style.position = 'absolute';
+          this.style.left = (touch.pageX - this.offsetWidth / 2) + 'px';
+          this.style.top = (touch.pageY - this.offsetHeight / 2) + 'px';
+
+          const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+          const column = dropTarget?.closest('.drop-column');
+
+          // Remove dragover class from all columns
+          document.querySelectorAll('.drop-column').forEach(col => {
+            col.classList.remove('dragover');
+          });
+
+          if (column) {
+            column.classList.add('dragover');
+          }
+        }, { passive: false });
+
+        word.addEventListener('touchend', function(e) {
+          if (isSubmitted) return;
+          this.classList.remove('dragging');
+          this.style.position = '';
+          this.style.left = '';
+          this.style.top = '';
+
+          const touch = e.changedTouches[0];
+          const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+          const column = dropTarget?.closest('.drop-column');
+
+          if (column) {
+            column.appendChild(this);
+          } else if (this.parentElement !== wordsContainer) {
+            wordsContainer.appendChild(this);
+          }
+
+          // Remove dragover class from all columns
+          document.querySelectorAll('.drop-column').forEach(col => col.classList.remove('dragover'));
         });
-    </script>
+      });
+    }
+
+    // Reset game
+    function resetGame() {
+      // Move all words back to words container
+      document.querySelectorAll('.draggable-word').forEach(word => {
+        wordsContainer.appendChild(word);
+        word.style.borderColor = '#ccc';
+        word.querySelector('.error-icon').style.display = 'none';
+        word.querySelector('.success-icon').style.display = 'none';
+        word.setAttribute('draggable', 'true');
+      });
+
+      resultsDiv.textContent = '';
+      showAnswersBtn.classList.remove('visible');
+      showAnswersBtn.textContent = 'Show Correct Answers';
+      isShowingAnswers = false;
+      isSubmitted = false;
+      userAnswersMap.clear();
+    }
+
+    // Toggle correct answers
+    function toggleCorrectAnswers() {
+      if (!isSubmitted) return;
+
+      isShowingAnswers = !isShowingAnswers;
+      showAnswersBtn.textContent = isShowingAnswers ? 'Show Your Answers' : 'Show Correct Answers';
+
+      const draggableWords = document.querySelectorAll('.draggable-word');
+
+      if (isShowingAnswers) {
+        // Store user’s current positions
+        draggableWords.forEach(word => {
+          const currentColumn = word.parentElement;
+          if (currentColumn.classList.contains('drop-column')) {
+            userAnswersMap.set(word, currentColumn);
+          } else {
+            userAnswersMap.set(word, wordsContainer);
+          }
+        });
+        // Move them to the correct columns
+        draggableWords.forEach(word => {
+          const correctCategory = word.getAttribute('data-category');
+          const correctColumn = document.querySelector(`.drop-column[data-category="${correctCategory}"]`);
+          correctColumn.appendChild(word);
+        });
+      } else {
+        // Restore user's answers
+        draggableWords.forEach(word => {
+          const userColumn = userAnswersMap.get(word);
+          userColumn.appendChild(word);
+        });
+      }
+    }
+
+    // Submit answers
+    function submitAnswers() {
+      if (isSubmitted) return;
+
+      let correctCount = 0;
+      const totalWords = document.querySelectorAll('.draggable-word').length;
+      const dropColumns = document.querySelectorAll('.drop-column');
+
+      // Check answers
+      dropColumns.forEach(column => {
+        const correctCategory = column.getAttribute('data-category');
+        const droppedWords = column.querySelectorAll('.draggable-word');
+
+        droppedWords.forEach(word => {
+          const errorIcon = word.querySelector('.error-icon');
+          const successIcon = word.querySelector('.success-icon');
+
+          if (word.getAttribute('data-category') === correctCategory) {
+            correctCount++;
+            word.style.borderColor = '#28a745';
+            errorIcon.style.display = 'none';
+            successIcon.style.display = 'inline';
+          } else {
+            word.style.borderColor = '#dc3545';
+            errorIcon.style.display = 'inline';
+            successIcon.style.display = 'none';
+          }
+        });
+      });
+
+      const percentage = Math.round((correctCount / totalWords) * 100);
+      resultsDiv.textContent = `You got ${correctCount} out of ${totalWords} correct! (${percentage}%)`;
+
+      // Show the "Show Correct Answers" button
+      showAnswersBtn.classList.add('visible');
+
+      // Disable dragging
+      document.querySelectorAll('.draggable-word').forEach(word => {
+        word.setAttribute('draggable', 'false');
+      });
+
+      isSubmitted = true;
+    }
+
+    // Initialize
+    initializeDragAndDrop();
+    initializeTouchEvents();
+
+    // Button listeners
+    submitBtn.addEventListener('click', submitAnswers);
+    resetBtn.addEventListener('click', resetGame);
+    showAnswersBtn.addEventListener('click', toggleCorrectAnswers);
+
+    // Prevent zoom on multi-touch
+    document.addEventListener('touchmove', function(e) {
+      if (e.touches.length > 1) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    // Prevent context menu on long press
+    document.addEventListener('contextmenu', function(e) {
+      if (e.target.classList.contains('draggable-word')) {
+        e.preventDefault();
+      }
+    });
+  </script>
 </body>
 </html>
