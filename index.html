@@ -1,27 +1,233 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Drag and Drop Test</title>
-  <!-- Link to CSS -->
-  <link rel="stylesheet" href="styles.css" />
+    <meta charset="UTF-8" />
+    <title>Drag and Drop Test</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 20px;
+            background-color: #f8f8f8;
+        }
+        h1 {
+            font-size:20px;
+            text-align: center;
+        }
+        #columns-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        .drop-column {
+            width: 30%;
+            min-height: 200px;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 10px;
+            transition: background-color 0.3s ease;
+        }
+        .drop-column h2 {
+            font-size:13px;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        .drop-column:hover {
+            background-color: #f0f0f0;
+        }
+        #words-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .draggable-word {
+            position: relative;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px 15px;
+            margin: 5px;
+            cursor: move;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        .draggable-word.dragging {
+            opacity: 0.5;
+            border: 2px dashed #666;
+        }
+        .error-icon, .success-icon {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            font-weight: bold;
+            display: none;
+        }
+        .error-icon {
+            color: red;
+        }
+        .success-icon {
+            color: green;
+        }
+        #submit-btn {
+            display: block;
+            margin: 0 auto;
+            padding: 10px 25px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #28a745;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+        }
+        #results {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-  <h1>Match the phrases to a category</h1>
+    <h1>Match the phrases to a category</h1>
+    <div id="columns-container"></div>
+    <div id="words-container"></div>
+    <button id="submit-btn">Submit</button>
+    <div id="results"></div>
 
-  <!-- Columns container -->
-  <div id="columns-container"></div>
+    <script>
+        const categories = [
+            { name: 'Physical appearance and character', dataCategory: 'appearance' },
+            { name: 'Past life', dataCategory: 'past' },
+            { name: 'Current life', dataCategory: 'current' },
+        ];
 
-  <!-- Words container -->
-  <div id="words-container"></div>
+        const words = [
+            { label: 'quite short', category: 'appearance' },
+            { label: 'seems to be very happy', category: 'current' },
+            { label: 'dark green eyes', category: 'appearance' },
+            { label: 'quite pretty', category: 'appearance' },
+            { label: 'lives in the countryside in a particularly beautiful house', category: 'current' },
+            { label: 'extremely ambitious', category: 'appearance' },
+            { label: 'works mainly with farm animals', category: 'current' },
+            { label: 'trained to be a vet', category: 'past' },
+            { label: 'went to Edinburgh University', category: 'past' },
+            { label: 'travelled around Australia and New Zealand', category: 'past' },
+            { label: 'vern intellegent', category: 'appearance' },
+            { label: 'really friendly', category: 'appearance' },
+        ];
 
-  <!-- Submit button -->
-  <button id="submit-btn">Submit</button>
+        const columnsContainer = document.getElementById('columns-container');
+        const wordsContainer = document.getElementById('words-container');
+        const submitBtn = document.getElementById('submit-btn');
+        const resultsDiv = document.getElementById('results');
 
-  <!-- Results -->
-  <div id="results"></div>
+        categories.forEach(cat => {
+            const colDiv = document.createElement('div');
+            colDiv.classList.add('drop-column');
+            colDiv.setAttribute('data-category', cat.dataCategory);
 
-  <!-- JavaScript -->
-  <script src="script.js"></script>
+            const title = document.createElement('h2');
+            title.textContent = cat.name;
+
+            colDiv.appendChild(title);
+            columnsContainer.appendChild(colDiv);
+        });
+
+        words.forEach(word => {
+            const wordDiv = document.createElement('div');
+            wordDiv.classList.add('draggable-word');
+            wordDiv.setAttribute('draggable', 'true');
+            wordDiv.setAttribute('data-category', word.category);
+            wordDiv.textContent = word.label;
+
+            const errorIcon = document.createElement('span');
+            errorIcon.classList.add('error-icon');
+            errorIcon.textContent = '✘';
+
+            const successIcon = document.createElement('span');
+            successIcon.classList.add('success-icon');
+            successIcon.textContent = '✓';
+
+            wordDiv.appendChild(errorIcon);
+            wordDiv.appendChild(successIcon);
+            wordsContainer.appendChild(wordDiv);
+        });
+
+        let draggedItem = null;
+
+        const draggableWords = document.querySelectorAll('.draggable-word');
+        const dropColumns = document.querySelectorAll('.drop-column');
+
+        draggableWords.forEach(word => {
+            word.addEventListener('dragstart', handleDragStart);
+            word.addEventListener('dragend', handleDragEnd);
+        });
+
+        dropColumns.forEach(column => {
+            column.addEventListener('dragover', handleDragOver);
+            column.addEventListener('dragenter', handleDragEnter);
+            column.addEventListener('dragleave', handleDragLeave);
+            column.addEventListener('drop', handleDrop);
+        });
+
+        function handleDragStart(e) {
+            draggedItem = e.target;
+            draggedItem.classList.add('dragging');
+        }
+
+        function handleDragEnd(e) {
+            draggedItem.classList.remove('dragging');
+            draggedItem = null;
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+        }
+
+        function handleDragLeave(e) {
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const dropTarget = e.target.closest('.drop-column');
+            if (dropTarget) {
+                dropTarget.appendChild(draggedItem);
+            }
+        }
+
+        submitBtn.addEventListener('click', () => {
+            let correctCount = 0;
+            const totalWords = draggableWords.length;
+
+            resultsDiv.textContent = '';
+
+            dropColumns.forEach(column => {
+                const correctCategory = column.getAttribute('data-category');
+                const droppedWords = column.querySelectorAll('.draggable-word');
+
+                droppedWords.forEach(word => {
+                    const errorIcon = word.querySelector('.error-icon');
+                    const successIcon = word.querySelector('.success-icon');
+                    
+                    if (word.getAttribute('data-category') === correctCategory) {
+                        correctCount++;
+                        word.style.borderColor = 'green';
+                        errorIcon.style.display = 'none';
+                        successIcon.style.display = 'inline';
+                    } else {
+                        word.style.borderColor = 'red';
+                        errorIcon.style.display = 'inline';
+                        successIcon.style.display = 'none';
+                    }
+                });
+            });
+
+            resultsDiv.textContent = `You got ${correctCount} out of ${totalWords} correct!`;
+        });
+    </script>
 </body>
 </html>
