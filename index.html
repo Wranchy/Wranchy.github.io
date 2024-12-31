@@ -339,7 +339,7 @@
             userAnswersMap.clear();
         }
 
-                function toggleCorrectAnswers() {
+        function toggleCorrectAnswers() {
             if (!isSubmitted) return;
             
             isShowingAnswers = !isShowingAnswers;
@@ -362,6 +362,7 @@
                 });
             }
         }
+
 
         submitBtn.addEventListener('click', () => {
             if (isSubmitted) return;
@@ -398,6 +399,7 @@
             
             isSubmitted = true;
         });
+
 
         resetBtn.addEventListener('click', resetGame);
         showAnswersBtn.addEventListener('click', toggleCorrectAnswers);
